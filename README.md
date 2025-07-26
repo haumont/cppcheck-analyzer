@@ -22,6 +22,16 @@ The parser generates three CSV files:
 - No external dependencies (uses only standard library)
 - Make (for using the Makefile targets)
 
+## Downloads
+
+A release archive is available containing:
+- The main script (`cppcheck_parser.py`)
+- Sample test data
+- Documentation and license
+- Makefile for easy testing
+
+Download the latest release from the [Releases page](https://github.com/your-username/cppcheck-analyzer/releases).
+
 ## Project Structure
 
 ```
@@ -151,10 +161,46 @@ make help
 python3 cppcheck_parser.py sample_cppcheck.xml
 ```
 
+## Installation
+
+### Quick Start
+
+```bash
+# Download and extract the release
+wget https://github.com/your-username/cppcheck-analyzer/releases/latest/download/cppcheck-parser-v0.1.tar.gz
+tar -xzf cppcheck-parser-v0.1.tar.gz
+cd cppcheck-parser-v0.1
+
+# Make the script executable
+chmod +x cppcheck_parser.py
+
+# Run tests
+make test
+
+# Use the parser
+./cppcheck_parser.py your_cppcheck_output.xml
+```
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/cppcheck-analyzer.git
+cd cppcheck-analyzer
+
+# Make the script executable
+make build
+
+# Run tests
+make test
+```
+
 ### Makefile Targets
 
 - `make test` - Run the parser tests with sample data and verification
 - `make clean` - Remove test output files (preserves test input data)
 - `make setup` - Set up test directory structure
+- `make build` - Make script executable
+- `make version` - Show version information
 - `make show-test-dir` - Show test directory structure
 - `make help` - Show available targets 

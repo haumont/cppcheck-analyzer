@@ -1,6 +1,9 @@
 # Test output directory
 test/output/
 
+# Build artifacts
+__pycache__/
+
 # Python
 __pycache__/
 *.py[cod]

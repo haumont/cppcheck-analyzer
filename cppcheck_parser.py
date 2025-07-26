@@ -3,6 +3,7 @@
 Cppcheck XML Parser
 
 Copyright (c) 2025 Jeff Haumont
+Version: 0.1
 
 This script parses cppcheck XML output and generates three CSV files:
 1. All error IDs with counts, sorted by count (descending)
@@ -27,6 +28,12 @@ import argparse
 from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+__version__ = "0.1"
+
+def get_version():
+    """Return the version string."""
+    return __version__
 
 
 def parse_cppcheck_xml(xml_file: str) -> Tuple[Counter, Counter]:
@@ -148,6 +155,7 @@ def main():
     )
     parser.add_argument(
         'input_file',
+        nargs='?',
         help='Path to the cppcheck XML output file'
     )
     parser.add_argument(
@@ -155,8 +163,18 @@ def main():
         default='.',
         help='Output directory for CSV files (default: current directory)'
     )
+    parser.add_argument(
+        '--version',
+        action='version',
+        version=f'cppcheck-parser {get_version()}'
+    )
     
     args = parser.parse_args()
+    
+    # Check if input file is provided
+    if not args.input_file:
+        parser.print_help()
+        sys.exit(1)
     
     # Validate input file
     if not Path(args.input_file).exists():

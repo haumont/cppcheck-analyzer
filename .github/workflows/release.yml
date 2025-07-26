@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Run tests
+      run: |
+        make test
+    
+    - name: Create release script
+      run: |
+        # Make the script executable
+        chmod +x cppcheck_parser.py
+        
+        # Create a simple release archive
+        tar -czf cppcheck-parser-v${{ github.ref_name }}.tar.gz \
+          cppcheck_parser.py \
+          test/sample_cppcheck.xml \
+          README.md \
+          LICENSE \
+          Makefile
+    
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: cppcheck-parser-v${{ github.ref_name }}.tar.gz
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

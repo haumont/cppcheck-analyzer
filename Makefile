@@ -18,6 +18,8 @@ help:
 	@echo "  test    - Run the parser tests with sample data and verification"
 	@echo "  clean   - Remove test output files (preserves test input)"
 	@echo "  setup   - Set up test directory structure"
+	@echo "  build   - Make script executable"
+	@echo "  version - Show version information"
 	@echo "  help    - Show this help message"
 
 # Set up test directory structure
@@ -85,4 +87,18 @@ show-test-dir:
 		find $(TEST_DIR) -type f -name "*.csv" -o -name "*.xml" | sort; \
 	else \
 		echo "Test directory does not exist. Run 'make setup' first."; \
-	fi 
+	fi
+
+# Make script executable
+.PHONY: build
+build:
+	@echo "Making script executable..."
+	@chmod +x $(PARSER)
+	@echo "✓ Script is now executable"
+	@echo "You can run it directly with: ./$(PARSER) <input_file>"
+
+# Show version information
+.PHONY: version
+version:
+	@echo "Version information:"
+	@$(PYTHON) $(PARSER) --version 
