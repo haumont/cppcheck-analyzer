@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results version="2">
+    <cppcheck version="2.13.0"/>
+    <errors>
+        <error id="arrayIndexOutOfBounds" severity="error" msg="Array 'arr[10]' accessed at index 10, which is out of bounds." verbose="Array 'arr[10]' accessed at index 10, which is out of bounds." cwe="788" file0="example.c">
+            <location file="example.c" line="15" column="5"/>
+        </error>
+        <error id="nullPointer" severity="error" msg="Null pointer dereference: ptr" verbose="Null pointer dereference: ptr" cwe="476" file0="example.c">
+            <location file="example.c" line="25" column="10"/>
+        </error>
+        <error id="uninitvar" severity="error" msg="Uninitialized variable: x" verbose="Variable 'x' is not initialized before it is used." cwe="457" file0="example.c">
+            <location file="example.c" line="30" column="8"/>
+        </error>
+        <error id="memleak" severity="error" msg="Memory leak: ptr" verbose="Memory allocated with malloc() for 'ptr' is not freed." cwe="401" file0="example.c">
+            <location file="example.c" line="40" column="12"/>
+        </error>
+        <error id="doubleFree" severity="error" msg="Memory pointed to by 'ptr' is freed twice." verbose="Memory pointed to by 'ptr' is freed twice. First free occurs at example.c:45:5, and the second free occurs at example.c:50:7." cwe="415" file0="example.c">
+            <location file="example.c" line="45" column="5" info="First free of pointer 'ptr'"/>
+            <location file="example.c" line="50" column="7" info="Second free of pointer 'ptr'"/>
+        </error>
+        <error id="uninitDerivedMemberVar" severity="error" msg="Uninitialized member variable 'data' in derived class" verbose="Member variable 'data' of derived class 'DerivedClass' is not initialized in the constructor." cwe="457" file0="derived.c">
+            <location file="derived.c" line="60" column="3" info="Constructor of 'DerivedClass' defined here"/>
+            <location file="derived.c" line="65" column="10" info="First use of uninitialized member 'data'"/>
+            <symbol>DerivedClass::data</symbol>
+        </error>
+        <error id="dupInheritedMember" severity="warning" msg="The inherited member 'value' is duplicated in multiple base classes" verbose="The member 'value' is inherited from both 'BaseClass1' and 'BaseClass2', causing ambiguity in 'DerivedClass'." cwe="398" file0="derived.c">
+            <location file="derived.c" line="70" column="5" info="Definition of 'value' in BaseClass1"/>
+            <location file="derived.c" line="75" column="5" info="Definition of 'value' in BaseClass2"/>
+            <location file="derived.c" line="80" column="10" info="Ambiguous access to 'value' in DerivedClass"/>
+            <symbol>BaseClass1::value</symbol>
+            <symbol>BaseClass2::value</symbol>
+            <symbol>DerivedClass::value</symbol>
+        </error>
+    </errors>
+</results> 
