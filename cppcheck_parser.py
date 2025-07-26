@@ -85,11 +85,11 @@ def write_csv_all_errors(error_id_counter: Counter, output_file: str):
     """
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Error ID', 'Count'])
+        writer.writerow(['Count', 'Error ID'])
         
         # Sort by count in descending order
         for error_id, count in error_id_counter.most_common():
-            writer.writerow([error_id, count])
+            writer.writerow([count, error_id])
 
 
 def write_csv_severities(severity_counter: Counter, output_file: str):
@@ -102,12 +102,12 @@ def write_csv_severities(severity_counter: Counter, output_file: str):
     """
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Severity', 'Count'])
+        writer.writerow(['Count', 'Severity'])
         
         # Sort alphabetically by severity name
         for severity in sorted(severity_counter.keys()):
             count = severity_counter[severity]
-            writer.writerow([severity, count])
+            writer.writerow([count, severity])
 
 
 def write_csv_error_severity_only(error_id_counter: Counter, severity_counter: Counter, output_file: str):
@@ -141,11 +141,11 @@ def write_csv_error_severity_only(error_id_counter: Counter, severity_counter: C
     
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Error ID', 'Count'])
+        writer.writerow(['Count', 'Error ID'])
         
         # Sort by count in ascending order
         for error_id, count in sorted(error_only_ids.items(), key=lambda x: x[1]):
-            writer.writerow([error_id, count])
+            writer.writerow([count, error_id])
 
 
 def main():
