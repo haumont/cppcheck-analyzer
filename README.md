@@ -1,6 +1,6 @@
 # Cppcheck XML Parser
 
-A Python 3.13 parser that reads cppcheck XML output and generates three CSV files intended for Excel import.
+A Python 3.6+ parser that reads cppcheck XML output and generates three CSV files intended for Excel import.
 
 ## License
 
@@ -18,7 +18,7 @@ The parser generates three CSV files:
 
 ## Requirements
 
-- Python 3.13
+- Python 3.6 or higher
 - No external dependencies (uses only standard library)
 - Make (for using the Makefile targets)
 
@@ -44,19 +44,19 @@ cppcheck-analyzer/
 ### Basic Usage
 
 ```bash
-python3.13 cppcheck_parser.py <input_xml_file>
+python3 cppcheck_parser.py <input_xml_file>
 ```
 
 ### With Custom Output Directory
 
 ```bash
-python3.13 cppcheck_parser.py <input_xml_file> --output-dir /path/to/output
+python3 cppcheck_parser.py <input_xml_file> --output-dir /path/to/output
 ```
 
 ### Example
 
 ```bash
-python3.13 cppcheck_parser.py sample_cppcheck.xml
+python3 cppcheck_parser.py sample_cppcheck.xml
 ```
 
 This will generate:
@@ -148,7 +148,7 @@ make help
 ### Manual Testing
 
 ```bash
-python3.13 cppcheck_parser.py sample_cppcheck.xml
+python3 cppcheck_parser.py sample_cppcheck.xml
 ```
 
 ### Makefile Targets

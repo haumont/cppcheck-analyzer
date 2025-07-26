@@ -2,7 +2,7 @@
 # Targets: test, clean, help
 
 # Variables
-PYTHON = python3.13
+PYTHON = python3
 PARSER = cppcheck_parser.py
 TEST_DIR = test
 TEST_INPUT = $(TEST_DIR)/sample_cppcheck.xml

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.13
+#!/usr/bin/env python3
 """
 Cppcheck XML Parser
 
@@ -9,12 +9,20 @@ This script parses cppcheck XML output and generates three CSV files:
 2. All severity levels with counts, sorted alphabetically
 3. Only error severity IDs with counts, sorted by count (ascending)
 
-Usage: python3.13 cppcheck_parser.py <input_xml_file>
+Usage: python3 cppcheck_parser.py <input_xml_file>
 """
+
+import sys
+
+# Check Python version early - requires Python 3.6+ for f-strings and pathlib features
+if sys.version_info < (3, 6):
+    print("Error: This script requires Python 3.6 or higher.")
+    print(f"Current Python version: {sys.version}")
+    print("Please upgrade your Python installation.")
+    sys.exit(1)
 
 import xml.etree.ElementTree as ET
 import csv
-import sys
 import argparse
 from collections import Counter
 from pathlib import Path
