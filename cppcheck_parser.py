@@ -77,7 +77,7 @@ def parse_cppcheck_xml(xml_file: str) -> Tuple[Counter, Counter]:
 
 def write_csv_all_errors(error_id_counter: Counter, output_file: str):
     """
-    Write CSV file with all error IDs and their counts, sorted by count (descending).
+    Write CSV file with all error IDs and their counts, sorted by count (ascending).
     
     Args:
         error_id_counter: Counter object with error IDs and counts
@@ -87,8 +87,8 @@ def write_csv_all_errors(error_id_counter: Counter, output_file: str):
         writer = csv.writer(csvfile)
         writer.writerow(['Count', 'Error ID'])
         
-        # Sort by count in descending order (highest to lowest)
-        for error_id, count in error_id_counter.most_common():
+        # Sort by count in ascending order (smallest to largest)
+        for error_id, count in sorted(error_id_counter.items(), key=lambda x: x[1]):
             writer.writerow([count, error_id])
 
 
