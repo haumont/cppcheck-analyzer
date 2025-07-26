@@ -16,6 +16,7 @@ TEST_OUTPUT_FILES = $(TEST_OUTPUT_DIR)/sample_cppcheck_all_errors.csv \
 help:
 	@echo "Available targets:"
 	@echo "  test    - Run the parser tests with sample data and verification"
+	@echo "  verify  - Run detailed CSV verification tests"
 	@echo "  clean   - Remove test output files (preserves test input)"
 	@echo "  setup   - Set up test directory structure"
 	@echo "  build   - Make script executable"
@@ -101,4 +102,11 @@ build:
 .PHONY: version
 version:
 	@echo "Version information:"
-	@$(PYTHON) $(PARSER) --version 
+	@$(PYTHON) $(PARSER) --version
+
+# Run detailed CSV verification tests
+.PHONY: verify
+verify: test
+	@echo ""
+	@echo "Running detailed CSV verification tests..."
+	@$(PYTHON) test_verification.py 

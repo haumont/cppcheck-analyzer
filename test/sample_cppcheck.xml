@@ -5,14 +5,26 @@
         <error id="arrayIndexOutOfBounds" severity="error" msg="Array 'arr[10]' accessed at index 10, which is out of bounds." verbose="Array 'arr[10]' accessed at index 10, which is out of bounds." cwe="788" file0="example.c">
             <location file="example.c" line="15" column="5"/>
         </error>
+        <error id="arrayIndexOutOfBounds" severity="error" msg="Array 'buffer[5]' accessed at index 5, which is out of bounds." verbose="Array 'buffer[5]' accessed at index 5, which is out of bounds." cwe="788" file0="example.c">
+            <location file="example.c" line="20" column="8"/>
+        </error>
         <error id="nullPointer" severity="error" msg="Null pointer dereference: ptr" verbose="Null pointer dereference: ptr" cwe="476" file0="example.c">
             <location file="example.c" line="25" column="10"/>
+        </error>
+        <error id="nullPointer" severity="error" msg="Null pointer dereference: data" verbose="Null pointer dereference: data" cwe="476" file0="example.c">
+            <location file="example.c" line="35" column="12"/>
+        </error>
+        <error id="nullPointer" severity="error" msg="Null pointer dereference: config" verbose="Null pointer dereference: config" cwe="476" file0="config.c">
+            <location file="config.c" line="10" column="5"/>
         </error>
         <error id="uninitvar" severity="error" msg="Uninitialized variable: x" verbose="Variable 'x' is not initialized before it is used." cwe="457" file0="example.c">
             <location file="example.c" line="30" column="8"/>
         </error>
         <error id="memleak" severity="error" msg="Memory leak: ptr" verbose="Memory allocated with malloc() for 'ptr' is not freed." cwe="401" file0="example.c">
             <location file="example.c" line="40" column="12"/>
+        </error>
+        <error id="memleak" severity="error" msg="Memory leak: buffer" verbose="Memory allocated with malloc() for 'buffer' is not freed." cwe="401" file0="memory.c">
+            <location file="memory.c" line="25" column="15"/>
         </error>
         <error id="doubleFree" severity="error" msg="Memory pointed to by 'ptr' is freed twice." verbose="Memory pointed to by 'ptr' is freed twice. First free occurs at example.c:45:5, and the second free occurs at example.c:50:7." cwe="415" file0="example.c">
             <location file="example.c" line="45" column="5" info="First free of pointer 'ptr'"/>
@@ -30,6 +42,12 @@
             <symbol>BaseClass1::value</symbol>
             <symbol>BaseClass2::value</symbol>
             <symbol>DerivedClass::value</symbol>
+        </error>
+        <error id="unusedFunction" severity="style" msg="The function 'helper' is never used." verbose="The function 'helper' is never used." cwe="561" file0="utils.c">
+            <location file="utils.c" line="5" column="1" info="Function 'helper' defined here"/>
+        </error>
+        <error id="unusedFunction" severity="style" msg="The function 'debug_print' is never used." verbose="The function 'debug_print' is never used." cwe="561" file0="debug.c">
+            <location file="debug.c" line="10" column="1" info="Function 'debug_print' defined here"/>
         </error>
     </errors>
 </results> 

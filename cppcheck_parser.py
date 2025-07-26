@@ -87,7 +87,7 @@ def write_csv_all_errors(error_id_counter: Counter, output_file: str):
         writer = csv.writer(csvfile)
         writer.writerow(['Count', 'Error ID'])
         
-        # Sort by count in descending order
+        # Sort by count in descending order (highest to lowest)
         for error_id, count in error_id_counter.most_common():
             writer.writerow([count, error_id])
 
