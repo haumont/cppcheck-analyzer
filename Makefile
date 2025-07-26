@@ -61,9 +61,9 @@ test: setup
 	@echo "Checking if all expected files were created..."
 	@for file in $(TEST_OUTPUT_FILES); do \
 		if [ -f $$file ]; then \
-			echo "✓ $$file exists"; \
+			echo "[OK] $$file exists"; \
 		else \
-			echo "✗ $$file missing"; \
+			echo "[ERROR] $$file missing"; \
 			exit 1; \
 		fi; \
 	done
@@ -94,7 +94,7 @@ show-test-dir:
 build:
 	@echo "Making script executable..."
 	@chmod +x $(PARSER)
-	@echo "✓ Script is now executable"
+	@echo "[OK] Script is now executable"
 	@echo "You can run it directly with: ./$(PARSER) <input_file>"
 
 # Show version information

@@ -3,7 +3,7 @@
 Cppcheck XML Parser
 
 Copyright (c) 2025 Jeff Haumont
-Version: 0.1
+Version: 0.1.1
 
 This script parses cppcheck XML output and generates three CSV files:
 1. All error IDs with counts, sorted by count (descending)
@@ -29,7 +29,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 def get_version():
     """Return the version string."""
@@ -204,13 +204,13 @@ def main():
     print(f"Generating CSV files in: {output_dir}")
     
     write_csv_all_errors(error_id_counter, all_errors_file)
-    print(f"✓ All errors CSV: {all_errors_file}")
+    print(f"[OK] All errors CSV: {all_errors_file}")
     
     write_csv_severities(severity_counter, severities_file)
-    print(f"✓ Severities CSV: {severities_file}")
+    print(f"[OK] Severities CSV: {severities_file}")
     
     write_csv_error_severity_only(error_id_counter, severity_counter, error_only_file)
-    print(f"✓ Error severity only CSV: {error_only_file}")
+    print(f"[OK] Error severity only CSV: {error_only_file}")
     
     # Print summary
     print(f"\nSummary:")
