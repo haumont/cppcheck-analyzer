@@ -9,13 +9,14 @@ TEST_INPUT = $(TEST_DIR)/sample_cppcheck.xml
 TEST_OUTPUT_DIR = $(TEST_DIR)/output
 TEST_OUTPUT_FILES = $(TEST_OUTPUT_DIR)/sample_cppcheck_all_errors.csv \
                    $(TEST_OUTPUT_DIR)/sample_cppcheck_severities.csv \
-                   $(TEST_OUTPUT_DIR)/sample_cppcheck_error_severity_only.csv
+                   $(TEST_OUTPUT_DIR)/sample_cppcheck_error_severity_only.csv \
+                   $(TEST_OUTPUT_DIR)/sample_cppcheck_report.html
 
 # Default target
 .PHONY: help
 help:
 	@echo "Available targets:"
-	@echo "  test    - Run the parser tests with sample data and verification"
+	@echo "  test    - Run the parser tests with sample data and verification (CSV + HTML)"
 	@echo "  verify  - Run detailed CSV verification tests"
 	@echo "  clean   - Remove test output files (preserves test input)"
 	@echo "  setup   - Set up test directory structure"
@@ -42,11 +43,22 @@ test: setup
 	@echo "Running cppcheck parser tests..."
 	@echo "Input file: $(TEST_INPUT)"
 	@echo "Output directory: $(TEST_OUTPUT_DIR)"
-	@$(PYTHON) $(PARSER) $(TEST_INPUT) --output-dir $(TEST_OUTPUT_DIR)
+	@echo ""
+	@echo "=== Testing CSV Generation ==="
+	@$(PYTHON) $(PARSER) $(TEST_INPUT) --output-dir $(TEST_OUTPUT_DIR) --csv
+	@echo ""
+	@echo "=== Testing HTML Generation ==="
+	@$(PYTHON) $(PARSER) $(TEST_INPUT) --output-dir $(TEST_OUTPUT_DIR) --html
+	@echo ""
+	@echo "=== Testing HTML with GitHub Links ==="
+	@$(PYTHON) $(PARSER) $(TEST_INPUT) --output-dir $(TEST_OUTPUT_DIR) --html --github "https://github.com/haumont/cppcheck-analyzer/blob/main"
+	@echo ""
+	@echo "=== Testing HTML with Filters ==="
+	@$(PYTHON) $(PARSER) $(TEST_INPUT) --output-dir $(TEST_OUTPUT_DIR) --html --severity error --not-error-id unusedFunction
 	@echo ""
 	@echo "Test results:"
 	@echo "Generated files:"
-	@ls -la $(TEST_OUTPUT_DIR)/*.csv
+	@ls -la $(TEST_OUTPUT_DIR)/*.csv $(TEST_OUTPUT_DIR)/*.html
 	@echo ""
 	@echo "CSV file contents:"
 	@echo "=== All Errors CSV ==="
@@ -57,6 +69,10 @@ test: setup
 	@echo ""
 	@echo "=== Error Severity Only CSV ==="
 	@cat $(TEST_OUTPUT_DIR)/sample_cppcheck_error_severity_only.csv
+	@echo ""
+	@echo "=== HTML Report Preview ==="
+	@head -20 $(TEST_OUTPUT_DIR)/sample_cppcheck_report.html
+	@echo "..."
 	@echo ""
 	@echo "Verifying parser functionality..."
 	@echo "Checking if all expected files were created..."
@@ -85,7 +101,7 @@ clean:
 show-test-dir:
 	@echo "Test directory structure:"
 	@if [ -d $(TEST_DIR) ]; then \
-		find $(TEST_DIR) -type f -name "*.csv" -o -name "*.xml" | sort; \
+		find $(TEST_DIR) -type f -name "*.csv" -o -name "*.xml" -o -name "*.html" | sort; \
 	else \
 		echo "Test directory does not exist. Run 'make setup' first."; \
 	fi
