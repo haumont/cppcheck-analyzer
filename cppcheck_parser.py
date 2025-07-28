@@ -150,7 +150,8 @@ def write_csv_error_severity_only(error_id_counter: Counter, severity_counter: C
 
 
 def write_html_report(xml_file: str, output_file: str, severities: List[str] = None, 
-                     error_ids: List[str] = None, file_pattern: str = None, github_url: str = None):
+                     error_ids: List[str] = None, not_error_ids: List[str] = None, 
+                     file_pattern: str = None, github_url: str = None):
     """
     Write HTML report with errors grouped by file, sorted and filtered.
     
@@ -159,6 +160,7 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         output_file: Output HTML file path
         severities: List of severities to include (None for all)
         error_ids: List of error IDs to include (None for all)
+        not_error_ids: List of error IDs to exclude (None for none)
         file_pattern: Wildcard pattern for file names (None for all)
         github_url: GitHub repository URL for file links (None for no links)
     """
@@ -182,6 +184,8 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         if severities and severity not in severities:
             continue
         if error_ids and error_id not in error_ids:
+            continue
+        if not_error_ids and error_id in not_error_ids:
             continue
         
         # Get file information from locations
@@ -251,6 +255,8 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         html_content += f'        <p><strong>Severities included:</strong> {", ".join(severities)}</p>\n'
     if error_ids:
         html_content += f'        <p><strong>Error IDs included:</strong> {", ".join(error_ids)}</p>\n'
+    if not_error_ids:
+        html_content += f'        <p><strong>Error IDs excluded:</strong> {", ".join(not_error_ids)}</p>\n'
     if file_pattern:
         html_content += f'        <p><strong>File pattern:</strong> {file_pattern}</p>\n'
     
@@ -373,6 +379,10 @@ def main():
         help='Comma-separated list of error IDs to include (for HTML output)'
     )
     parser.add_argument(
+        '--not-error-id',
+        help='Comma-separated list of error IDs to exclude (for HTML output)'
+    )
+    parser.add_argument(
         '--file',
         help='Wildcard expression to match file names (for HTML output)'
     )
@@ -445,11 +455,15 @@ def main():
         if args.error_id:
             error_ids = [e.strip() for e in args.error_id.split(',')]
         
+        not_error_ids = None
+        if args.not_error_id:
+            not_error_ids = [e.strip() for e in args.not_error_id.split(',')]
+        
         file_pattern = args.file
         github_url = args.github
         
         print(f"Generating HTML report: {html_file}")
-        write_html_report(args.input_file, html_file, severities, error_ids, file_pattern, github_url)
+        write_html_report(args.input_file, html_file, severities, error_ids, not_error_ids, file_pattern, github_url)
         print(f"[OK] HTML report: {html_file}")
     
     # Print summary
