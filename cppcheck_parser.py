@@ -30,7 +30,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 def get_version():
     """Return the version string."""
