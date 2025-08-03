@@ -40,6 +40,7 @@ def get_version():
 def parse_cppcheck_xml(xml_file: str) -> Tuple[Counter, Counter]:
     """
     Parse cppcheck XML file and return counters for error IDs and severities.
+    Groups errors with multiple locations within a single error block together.
     
     Args:
         xml_file: Path to the cppcheck XML output file
@@ -67,6 +68,7 @@ def parse_cppcheck_xml(xml_file: str) -> Tuple[Counter, Counter]:
         error_id = error.get('id')
         severity = error.get('severity')
         
+        # Count each error block as 1, regardless of number of locations
         if error_id:
             error_id_counter[error_id] += 1
         
@@ -114,6 +116,7 @@ def write_csv_severities(severity_counter: Counter, output_file: str):
 def write_csv_error_severity_only(error_id_counter: Counter, severity_counter: Counter, output_file: str):
     """
     Write CSV file with only error severity IDs and their counts, sorted by count (ascending).
+    Groups errors with multiple locations within a single error block together.
     
     Args:
         error_id_counter: Counter object with error IDs and counts
@@ -133,6 +136,7 @@ def write_csv_error_severity_only(error_id_counter: Counter, severity_counter: C
             error_id = error.get('id')
             severity = error.get('severity')
             
+            # Count each error block as 1, regardless of number of locations
             if error_id and severity == 'error':
                 error_only_ids[error_id] += 1
                 
@@ -171,7 +175,7 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         print(f"Error parsing XML file: {e}")
         return
     
-    # Group errors by file
+    # Group errors by file, with multi-location errors grouped together
     file_errors = defaultdict(list)
     
     for error in root.findall('.//error'):
@@ -192,7 +196,9 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         locations = error.findall('.//location')
         if not locations:
             continue
-            
+        
+        # Group all locations for this error together
+        grouped_locations = []
         for location in locations:
             file_name = location.get('file', '')
             line = location.get('line', '')
@@ -203,15 +209,25 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
             if file_pattern and not fnmatch.fnmatch(file_name, file_pattern):
                 continue
             
-            file_errors[file_name].append({
-                'id': error_id,
-                'severity': severity,
-                'msg': msg,
-                'verbose': verbose,
+            grouped_locations.append({
+                'file': file_name,
                 'line': line,
                 'column': column,
                 'info': info
             })
+        
+        # Add grouped error to each file that has locations, but only once per file
+        files_added = set()
+        for location in grouped_locations:
+            if location['file'] not in files_added:
+                file_errors[location['file']].append({
+                    'id': error_id,
+                    'severity': severity,
+                    'msg': msg,
+                    'verbose': verbose,
+                    'locations': grouped_locations  # Store all locations for this error
+                })
+                files_added.add(location['file'])
     
     # Generate HTML
     html_content = f"""<!DOCTYPE html>
@@ -278,8 +294,8 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         <div class="file-header">{file_header}</div>
 """
         
-        # Sort errors by line number
-        errors.sort(key=lambda x: int(x['line']) if x['line'].isdigit() else 0)
+        # Sort errors by first location line number
+        errors.sort(key=lambda x: int(x['locations'][0]['line']) if x['locations'][0]['line'].isdigit() else 0)
         
         for error in errors:
             html_content += f"""        <div class="error {error['severity']}">
@@ -293,18 +309,24 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
                 html_content += f"""            <div class="error-verbose">{error['verbose']}</div>
 """
             
-            # Create line number with optional GitHub link
-            if github_url and error['line'].isdigit():
-                line_link = create_github_link(github_url, file_name, error['line'])
-                location_text = f'<a href="{line_link}" target="_blank">Line {error["line"]}</a>, Column {error["column"]}'
-            else:
-                location_text = f'Line {error["line"]}, Column {error["column"]}'
-            
-            html_content += f"""            <div class="error-location">{location_text}</div>
+            # Display all locations for this error
+            for i, location in enumerate(error['locations']):
+                # Create line number with optional GitHub link
+                if github_url and location['line'].isdigit():
+                    line_link = create_github_link(github_url, location['file'], location['line'])
+                    location_text = f'<a href="{line_link}" target="_blank">Line {location["line"]}</a>, Column {location["column"]}'
+                else:
+                    location_text = f'Line {location["line"]}, Column {location["column"]}'
+                
+                # Add file name if this location is in a different file
+                if location['file'] != file_name:
+                    location_text = f"{location['file']}: {location_text}"
+                
+                html_content += f"""            <div class="error-location">{location_text}</div>
 """
-            
-            if error['info']:
-                html_content += f"""            <div class="error-info">{error['info']}</div>
+                
+                if location['info']:
+                    html_content += f"""            <div class="error-info">{location['info']}</div>
 """
             
             html_content += """        </div>
