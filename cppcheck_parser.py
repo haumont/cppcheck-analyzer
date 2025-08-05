@@ -30,7 +30,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 def get_version():
     """Return the version string."""
@@ -175,8 +175,9 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         print(f"Error parsing XML file: {e}")
         return
     
-    # Group errors by file, with multi-location errors grouped together
-    file_errors = defaultdict(list)
+    # Group issues by file, with multi-location issues grouped together
+    file_issues = defaultdict(list)
+    severity_counter = Counter()  # Track severity breakdown
     
     for error in root.findall('.//error'):
         error_id = error.get('id')
@@ -197,7 +198,7 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         if not locations:
             continue
         
-        # Group all locations for this error together
+        # Group all locations for this issue together
         grouped_locations = []
         for location in locations:
             file_name = location.get('file', '')
@@ -216,17 +217,18 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
                 'info': info
             })
         
-        # Add grouped error to each file that has locations, but only once per file
+        # Add grouped issue to each file that has locations, but only once per file
         files_added = set()
         for location in grouped_locations:
             if location['file'] not in files_added:
-                file_errors[location['file']].append({
+                file_issues[location['file']].append({
                     'id': error_id,
                     'severity': severity,
                     'msg': msg,
                     'verbose': verbose,
-                    'locations': grouped_locations  # Store all locations for this error
+                    'locations': grouped_locations  # Store all locations for this issue
                 })
+                severity_counter[severity] += 1  # Count this issue for severity breakdown
                 files_added.add(location['file'])
     
     # Generate HTML
@@ -252,6 +254,8 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
         .error-location {{ color: #888; font-size: 12px; }}
         .error-info {{ color: #666; font-style: italic; }}
         .summary {{ background-color: #f0f0f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; }}
+        .severity-breakdown {{ margin-top: 10px; padding: 10px; background-color: #e8e8e8; border-radius: 3px; }}
+        .severity-item {{ margin: 2px 0; }}
         a {{ color: #0366d6; text-decoration: none; }}
         a:hover {{ text-decoration: underline; }}
         .file-header a {{ color: inherit; }}
@@ -263,16 +267,31 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Source:</strong> {xml_file}</p>
-        <p><strong>Files with errors:</strong> {len(file_errors)}</p>
-        <p><strong>Total errors:</strong> {sum(len(errors) for errors in file_errors.values())}</p>
+        <p><strong>Files with issues:</strong> {len(file_issues)}</p>
+        <p><strong>Total issues:</strong> {sum(len(issues) for issues in file_issues.values())}</p>
+        <div class="severity-breakdown">
+            <strong>Severity breakdown:</strong>
+"""
+    
+    # Add severity breakdown
+    total_issues = sum(len(issues) for issues in file_issues.values())
+    if total_issues > 0:
+        for severity in sorted(severity_counter.keys()):
+            count = severity_counter[severity]
+            percentage = (count / total_issues) * 100
+            html_content += f'            <div class="severity-item">{severity}: {count} ({percentage:.1f}%)</div>\n'
+    else:
+        html_content += '            <div class="severity-item">No issues found</div>\n'
+    
+    html_content += """        </div>
 """
     
     if severities:
         html_content += f'        <p><strong>Severities included:</strong> {", ".join(severities)}</p>\n'
     if error_ids:
-        html_content += f'        <p><strong>Error IDs included:</strong> {", ".join(error_ids)}</p>\n'
+        html_content += f'        <p><strong>Issue IDs included:</strong> {", ".join(error_ids)}</p>\n'
     if not_error_ids:
-        html_content += f'        <p><strong>Error IDs excluded:</strong> {", ".join(not_error_ids)}</p>\n'
+        html_content += f'        <p><strong>Issue IDs excluded:</strong> {", ".join(not_error_ids)}</p>\n'
     if file_pattern:
         html_content += f'        <p><strong>File pattern:</strong> {file_pattern}</p>\n'
     
@@ -280,37 +299,37 @@ def write_html_report(xml_file: str, output_file: str, severities: List[str] = N
 """
     
     # Sort files alphabetically
-    for file_name in sorted(file_errors.keys()):
-        errors = file_errors[file_name]
+    for file_name in sorted(file_issues.keys()):
+        issues = file_issues[file_name]
         
         # Create file header with optional GitHub link
         if github_url:
             file_link = create_github_link(github_url, file_name)
-            file_header = f'<a href="{file_link}" target="_blank">{file_name}</a> ({len(errors)} errors)'
+            file_header = f'<a href="{file_link}" target="_blank">{file_name}</a> ({len(issues)} issues)'
         else:
-            file_header = f"{file_name} ({len(errors)} errors)"
+            file_header = f"{file_name} ({len(issues)} issues)"
         
         html_content += f"""    <div class="file-section">
         <div class="file-header">{file_header}</div>
 """
         
-        # Sort errors by first location line number
-        errors.sort(key=lambda x: int(x['locations'][0]['line']) if x['locations'][0]['line'].isdigit() else 0)
+        # Sort issues by first location line number
+        issues.sort(key=lambda x: int(x['locations'][0]['line']) if x['locations'][0]['line'].isdigit() else 0)
         
-        for error in errors:
-            html_content += f"""        <div class="error {error['severity']}">
+        for issue in issues:
+            html_content += f"""        <div class="error {issue['severity']}">
             <div class="error-header">
-                <span class="error-id">{error['id']}</span> - {error['severity'].upper()}
+                <span class="error-id">{issue['id']}</span> - {issue['severity'].upper()}
             </div>
-            <div class="error-msg">{error['msg']}</div>
+            <div class="error-msg">{issue['msg']}</div>
 """
             
-            if error['verbose'] and error['verbose'] != error['msg']:
-                html_content += f"""            <div class="error-verbose">{error['verbose']}</div>
+            if issue['verbose'] and issue['verbose'] != issue['msg']:
+                html_content += f"""            <div class="error-verbose">{issue['verbose']}</div>
 """
             
-            # Display all locations for this error
-            for i, location in enumerate(error['locations']):
+            # Display all locations for this issue
+            for i, location in enumerate(issue['locations']):
                 # Create line number with optional GitHub link
                 if github_url and location['line'].isdigit():
                     line_link = create_github_link(github_url, location['file'], location['line'])
